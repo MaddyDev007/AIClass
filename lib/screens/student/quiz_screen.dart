@@ -130,7 +130,7 @@ class _QuizScreenState extends State<QuizScreen> {
         .collection('students')
         .doc(user!.uid)
         .set(scoreData);
-
+    if (!mounted) return;
     showDialog(
       context: context,
       builder: (_) => AlertDialog(

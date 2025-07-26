@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class ManageQuizScreen extends StatelessWidget {
+class ManageQuizScreen extends StatefulWidget {
   const ManageQuizScreen({super.key});
 
+  @override
+  State<ManageQuizScreen> createState() => _ManageQuizScreenState();
+}
+
+class _ManageQuizScreenState extends State<ManageQuizScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,9 +39,9 @@ class ManageQuizScreen extends StatelessWidget {
                   subtitle: Text("Dept: ${data['department']}, Class: ${data['class']}"),
                   trailing: IconButton(
                     icon: const Icon(Icons.delete),
-                    onPressed: () => _deleteQuiz(quiz.id, context),
+                    onPressed: () => _deleteQuiz(quiz.id),
                   ),
-                  onTap: () => _viewQuizDetails(context, data),
+                  onTap: () => _viewQuizDetails(data),
                 ),
               );
             },
@@ -46,8 +51,8 @@ class ManageQuizScreen extends StatelessWidget {
     );
   }
 
-  void _deleteQuiz(String id, BuildContext context) async {
-    final confirm = await showDialog(
+  Future<void> _deleteQuiz(String id) async {
+    final confirm = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
         title: const Text("Confirm Deletion"),
@@ -59,13 +64,24 @@ class ManageQuizScreen extends StatelessWidget {
       ),
     );
 
-    if (confirm) {
-      await FirebaseFirestore.instance.collection('quizzes').doc(id).delete();
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Quiz deleted")));
+    if (confirm == true) {
+      try {
+        await FirebaseFirestore.instance.collection('quizzes').doc(id).delete();
+        if (!mounted) return;
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Quiz deleted")),
+        );
+      } catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Failed to delete quiz: $e")),
+        );
+      }
     }
   }
 
-  void _viewQuizDetails(BuildContext context, Map<String, dynamic> data) {
+  void _viewQuizDetails(Map<String, dynamic> data) {
     final questions = data['questions'] as List<dynamic>? ?? [];
 
     showDialog(
@@ -86,7 +102,12 @@ class ManageQuizScreen extends StatelessWidget {
             },
           ),
         ),
-        actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text("Close"))],
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Close"),
+          ),
+        ],
       ),
     );
   }

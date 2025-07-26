@@ -3,7 +3,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from upload_material import app as upload_app
-# from chatbot import app as chatbot_app  # Uncomment when chatbot.py is ready
+#from chat import app as chatbot_app  # Uncomment when chatbot.py is ready
 
 app = FastAPI()
 

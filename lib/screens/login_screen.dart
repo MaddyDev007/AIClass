@@ -20,11 +20,11 @@ class _LoginScreenState extends State<LoginScreen> {
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
-
+      if (!mounted) return;
       final uid = userCredential.user!.uid;
       final doc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
       final role = doc.data()?['role'];
-
+      if (!mounted) return;
       if (role == 'teacher') {
         Navigator.pushReplacementNamed(context, '/teacher');
       } else if (role == 'student') {

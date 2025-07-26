@@ -50,7 +50,7 @@ class _UploadMaterialScreenState extends State<UploadMaterialScreen> {
       ..files.add(await http.MultipartFile.fromPath('file', selectedFile!.path));
 
     final response = await request.send();
-
+    if (!mounted) return;
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Material uploaded & quiz generated")),
